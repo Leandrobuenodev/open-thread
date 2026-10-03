@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signing in</title>
+  </head>
+  <body>
+    <script type="module">
+      import { broadcastResponseToMainFrame } from "@azure/msal-browser/redirect-bridge";
+
+      // MSAL v5 bridge only: never mount React or another MSAL instance here.
+      // An old logout URL/bookmark without a response must recover to home.
+      broadcastResponseToMainFrame().catch(() => {
+        if (window.parent === window && !window.opener) {
+          window.location.replace(new URL("/", window.location.origin).href);
+        } else {
+          window.close();
+        }
+      });
+    </script>
+  </body>
+</html>

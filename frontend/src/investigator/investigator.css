@@ -1,0 +1,142 @@
+.investigator-page {
+  display: grid;
+  gap: 28px;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+.investigator-heading {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.investigator-heading h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 390;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+}
+
+.investigator-heading p:last-child {
+  max-width: 620px;
+  margin: 17px 0 0;
+  color: rgb(255 255 255 / 52%);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.investigator-new {
+  flex: 0 0 auto;
+  padding: 10px 13px;
+  border: 1px solid var(--product-border-strong);
+  border-radius: 7px;
+  color: rgb(255 255 255 / 78%);
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.investigator-new:hover,
+.investigator-new:focus-visible {
+  border-color: rgb(255 255 255 / 48%);
+  color: #fff;
+  outline: 0;
+}
+
+.investigator-contextbar {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-block: 1px solid var(--product-border);
+}
+
+.investigator-contextbar__copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.investigator-contextbar__copy > span {
+  color: rgb(255 255 255 / 45%);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.investigator-contextbar__copy strong {
+  overflow: hidden;
+  color: rgb(255 255 255 / 84%);
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.investigator-contextbar__copy small {
+  overflow: hidden;
+  color: rgb(255 255 255 / 36%);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.investigator-contextbar__change {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.investigator-contextbar__change summary {
+  padding: 8px 10px;
+  border: 1px solid var(--product-border-strong);
+  border-radius: 6px;
+  color: rgb(255 255 255 / 73%);
+  cursor: pointer;
+  font-size: 11px;
+  list-style: none;
+}
+
+.investigator-contextbar__change summary::-webkit-details-marker { display: none; }
+.investigator-contextbar__change summary::after { margin-left: 8px; color: rgb(255 255 255 / 35%); content: "⌄"; }
+.investigator-contextbar__change[open] summary { color: #fff; }
+.investigator-contextbar__change select {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 230px;
+  padding: 9px 11px;
+  border: 1px solid var(--product-border-strong);
+  border-radius: 6px;
+  color: #fff;
+  background: #101112;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.investigator-contextbar__change select:focus-visible { outline: 2px solid rgb(255 255 255 / 45%); outline-offset: 2px; }
+
+.investigator-conversation { display: grid; gap: 22px; min-height: 465px; padding: 24px 0 0; border-top: 1px solid var(--product-border); }
+.investigator-empty { display: grid; align-content: center; min-height: 260px; padding: 40px 15%; text-align: center; }
+.investigator-empty__index { color: rgb(255 255 255 / 36%); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+.investigator-empty h2 { margin: 17px 0 0; color: #fff; font-size: clamp(25px, 3vw, 36px); font-weight: 400; letter-spacing: -0.05em; }
+.investigator-empty p { margin: 15px 0 0; color: rgb(255 255 255 / 48%); font-size: 13px; }
+.investigator-messages { display: grid; gap: 22px; max-height: 430px; overflow: auto; padding: 0 4px; }
+.investigator-messages .chat-message { width: min(100%, 780px); }
+.investigator-thinking { margin: 0; color: rgb(255 255 255 / 42%); font-size: 12px; }
+.investigator-error { margin: 0; padding: 11px 13px; border-left: 2px solid rgb(231 151 151 / 60%); color: rgb(255 255 255 / 75%); background: rgb(231 151 151 / 5%); font-size: 12px; }
+.investigator-composer { width: min(100%, 850px); margin: 0 auto; }
+.investigator-composer > p { margin: 10px 0 0; color: rgb(255 255 255 / 30%); font-size: 10px; text-align: center; }
+
+@media (max-width: 640px) {
+  .investigator-heading { flex-direction: column; }
+  .investigator-new { align-self: flex-start; }
+  .investigator-contextbar { align-items: flex-start; }
+  .investigator-contextbar__change select { position: fixed; top: 110px; right: 20px; left: 20px; width: calc(100vw - 40px); }
+  .investigator-empty { padding-inline: 6%; }
+}

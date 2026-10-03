@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openthread-backend"
+version = "0.1.0"
+description = "FastAPI backend for the Open Thread local slice"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.116,<1",
+    "httpx>=0.28,<1",
+    "PyJWT[crypto]>=2.10,<3",
+    "uvicorn[standard]>=0.35,<1",
+    "azure-data-tables>=12.7,<13",
+    "azure-storage-blob>=12.31,<13",
+    "azure-identity>=1.26,<2",
+    "Pillow>=11.3,<13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "pytest-asyncio>=1,<2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]

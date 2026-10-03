@@ -1,0 +1,208 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: ubuntu-24.04
+
+stages:
+  - stage: Validate
+    displayName: Validate backend and frontend
+    jobs:
+      - job: Backend
+        displayName: Backend tests
+        steps:
+          - task: UsePythonVersion@0
+            displayName: Use Python 3.11
+            inputs:
+              versionSpec: "3.11"
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              python -m pip install --require-hashes -r requirements.lock
+              python -m pip install -e ".[dev]"
+            displayName: Install backend dependencies
+            workingDirectory: backend
+
+          - script: python -m pytest
+            displayName: Run backend tests
+            workingDirectory: backend
+
+          - script: python -m pytest scripts/tests -q
+            displayName: Test delivery guards and smoke checks with fakes
+
+      - job: Frontend
+        displayName: Frontend typecheck, tests, and build
+        steps:
+          - task: UseNode@1
+            displayName: Use Node.js 22.12+
+            inputs:
+              version: "22.12.x"
+
+          - script: npm ci
+            displayName: Install frontend dependencies
+            workingDirectory: frontend
+
+          - script: npm exec tsc -- --noEmit -p tsconfig.app.json
+            displayName: Type-check frontend
+            workingDirectory: frontend
+
+          - script: npm test -- --run
+            displayName: Run frontend tests
+            workingDirectory: frontend
+
+          - script: npm run build
+            displayName: Build frontend
+            workingDirectory: frontend
+
+      - job: Infrastructure
+        displayName: Infrastructure Bicep validation
+        steps:
+          - script: az bicep install
+            displayName: Install Bicep CLI
+
+          - script: az bicep version
+            displayName: Check Bicep version
+
+          - script: az bicep build --file infra/main.bicep --stdout
+            displayName: Compile main Bicep template
+
+          - script: az bicep build-params --file infra/dev.bicepparam --stdout
+            displayName: Compile development Bicep parameters
+
+          - script: az bicep lint --file infra/main.bicep
+            displayName: Lint main Bicep template
+
+          - script: az bicep build --file infra/backend.bicep --stdout
+            displayName: Compile backend deployment template
+
+          - script: az bicep lint --file infra/backend.bicep
+            displayName: Lint backend deployment template
+
+          - script: az bicep build --file infra/storage.bicep --stdout
+            displayName: Compile Storage template
+
+          - script: az bicep lint --file infra/storage.bicep
+            displayName: Lint Storage template
+
+          - script: az bicep build-params --file infra/storage.dev.bicepparam --stdout
+            displayName: Compile Storage parameters with test principal
+            env:
+              OPENTHREAD_ACA_PRINCIPAL_ID: '00000000-0000-0000-0000-000000000001'
+
+      - job: Container
+        displayName: Docker build and unauthenticated smoke
+        steps:
+          - checkout: self
+            fetchDepth: 2
+          - script: |
+              docker build -t openthread-ci backend
+              container=$(docker run -d -p 127.0.0.1:18000:8000 openthread-ci)
+              trap 'docker rm -f "$container" >/dev/null' EXIT
+              for attempt in $(seq 1 30); do
+                if curl -fsS http://127.0.0.1:18000/health >/dev/null; then break; fi
+                sleep 1
+              done
+              curl -fsS http://127.0.0.1:18000/health
+              test "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"message":"smoke"}' http://127.0.0.1:18000/api/chat)" = 401
+            displayName: Build and smoke backend container
+          - script: git diff --check HEAD^ HEAD
+            displayName: Check whitespace
+
+  # DEV delivery is automatic only after validation on develop; PRs never deploy.
+  - stage: DeliverDev
+    displayName: Open Thread DEV delivery
+    lockBehavior: sequential
+    dependsOn: Validate
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'), in(variables['Build.Reason'], 'IndividualCI', 'BatchedCI'))
+    variables:
+      - group: openthread-dev-delivery
+    jobs:
+      - deployment: OpenThreadDev
+        environment: openthread-dev
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: UsePythonVersion@0
+                  inputs:
+                    versionSpec: '3.11'
+                - task: UseNode@1
+                  inputs:
+                    version: '22.12.x'
+                - task: AzureCLI@2
+                  displayName: Build, container smoke, push and deploy backend
+                  inputs:
+                    azureSubscription: 'openthread-dev-azure'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: python scripts/deploy_dev.py --execute
+                  env:
+                    FOUNDRY_API_KEY: $(FOUNDRY_API_KEY)
+                    SWA_DEPLOYMENT_TOKEN: $(SWA_DEPLOYMENT_TOKEN)
+                    VITE_ENTRA_CLIENT_ID: $(VITE_ENTRA_CLIENT_ID)
+                    VITE_ENTRA_AUTHORITY: $(VITE_ENTRA_AUTHORITY)
+                    VITE_ENTRA_API_SCOPE: $(VITE_ENTRA_API_SCOPE)
+                    OPENTHREAD_AZURE_SUBSCRIPTION_ID: $(OPENTHREAD_AZURE_SUBSCRIPTION_ID)
+                    OPENTHREAD_DEV_RESOURCE_GROUP: $(OPENTHREAD_DEV_RESOURCE_GROUP)
+                    OPENTHREAD_CONTAINER_APP_NAME: $(OPENTHREAD_CONTAINER_APP_NAME)
+                    OPENTHREAD_ACR_NAME: $(OPENTHREAD_ACR_NAME)
+                    OPENTHREAD_CONTAINER_APPS_ENVIRONMENT_NAME: $(OPENTHREAD_CONTAINER_APPS_ENVIRONMENT_NAME)
+                    OPENTHREAD_STORAGE_ACCOUNT_NAME: $(OPENTHREAD_STORAGE_ACCOUNT_NAME)
+                    ENTRA_AUTHORITY: $(ENTRA_AUTHORITY)
+                    ENTRA_API_AUDIENCE: $(ENTRA_API_AUDIENCE)
+                    ENTRA_REQUIRED_SCOPE: $(ENTRA_REQUIRED_SCOPE)
+                    FOUNDRY_ENDPOINT: $(FOUNDRY_ENDPOINT)
+                    FOUNDRY_DEPLOYMENT: $(FOUNDRY_DEPLOYMENT)
+                    OPENTHREAD_FRONTEND_ORIGIN: $(OPENTHREAD_FRONTEND_ORIGIN)
+                - script: |
+                    npm ci
+                    npm run build
+                  workingDirectory: frontend
+                  displayName: Build frontend for DEV
+                  env:
+                    VITE_API_BASE_URL: $(backendUrl)
+                    VITE_ENTRA_CLIENT_ID: $(VITE_ENTRA_CLIENT_ID)
+                    VITE_ENTRA_AUTHORITY: $(VITE_ENTRA_AUTHORITY)
+                    VITE_ENTRA_API_SCOPE: $(VITE_ENTRA_API_SCOPE)
+                    VITE_ENTRA_REDIRECT_URI: $(OPENTHREAD_FRONTEND_ORIGIN)/redirect.html
+                - task: AzureStaticWebApp@0
+                  displayName: Deploy Open Thread frontend
+                  inputs:
+                    app_location: frontend/dist
+                    output_location: ''
+                    skip_app_build: true
+                    skip_api_build: true
+                    production_branch: develop
+                    azure_static_web_apps_api_token: $(SWA_DEPLOYMENT_TOKEN)
+                - task: AzureCLI@2
+                  displayName: Read-only DEV configuration and HTTP smoke tests
+                  inputs:
+                    azureSubscription: 'openthread-dev-azure'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: >-
+                      python scripts/smoke_dev.py
+                      --backend "$(backendUrl)"
+                      --frontend "$(OPENTHREAD_FRONTEND_ORIGIN)"
+                      --commit "$(Build.SourceVersion)"
+                      --resource-group "$(OPENTHREAD_DEV_RESOURCE_GROUP)"
+                      --container-app "$(OPENTHREAD_CONTAINER_APP_NAME)"
+                - script: |
+                    npm ci --prefix scripts/smoke
+                    cd scripts/smoke
+                    npx playwright install --with-deps chromium
+                    npm test
+                  displayName: Browser smoke without sign-in or inference
+                  env:
+                    FRONTEND_URL: $(OPENTHREAD_FRONTEND_ORIGIN)

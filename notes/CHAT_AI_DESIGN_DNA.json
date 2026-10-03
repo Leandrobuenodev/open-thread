@@ -1,0 +1,187 @@
+{
+  "name": "Chat AI / Editorial intelligence",
+  "sources": {
+    "primary": "User-supplied reference images (not distributed in this repository)",
+    "references": [
+      {
+        "file": "Captura de tela 2026-09-29 174324.png",
+        "width": 950,
+        "height": 813
+      },
+      {
+        "file": "Captura de tela 2026-09-29 174509.png",
+        "width": 945,
+        "height": 847
+      },
+      {
+        "file": "Captura de tela 2026-09-29 174517.png",
+        "width": 941,
+        "height": 913
+      },
+      {
+        "file": "Captura de tela 2026-09-29 174525.png",
+        "width": 948,
+        "height": 828
+      },
+      {
+        "file": "Captura de tela 2026-09-29 174533.png",
+        "width": 940,
+        "height": 898
+      },
+      {
+        "file": "Captura de tela 2026-09-29 174540.png",
+        "width": 964,
+        "height": 902
+      },
+      {
+        "file": "Captura de tela 2026-09-29 174548.png",
+        "width": 947,
+        "height": 465
+      }
+    ],
+    "assets": [],
+    "secondary": "Behance NeoVision represented by supplied local screenshots; remote page not used",
+    "asset_provenance": "The supplied robot references were excluded from the public snapshot because authorship and redistribution rights were not established by available local evidence."
+  },
+  "design_system": {
+    "color": {
+      "surface": {
+        "background": "#efefef",
+        "inverse": "#0e0e0e"
+      },
+      "neutral": {
+        "scale": [
+          "#efefef",
+          "#b8bec0",
+          "#858c8d",
+          "#5b6061",
+          "#383c3d",
+          "#0e0e0e"
+        ],
+        "usage": "Ink foreground on paper; paper foreground on charcoal"
+      },
+      "accent": {
+        "hex": "#0e0e0e",
+        "usage": "Monochrome CTA; tiny blue/gold screenshot artifacts excluded"
+      },
+      "measured_palette": [
+        {
+          "hex": "#efefef",
+          "coverage": 0.4833,
+          "role": "background"
+        },
+        {
+          "hex": "#0e0e0e",
+          "coverage": 0.3907,
+          "role": "text"
+        },
+        {
+          "hex": "#383c3d",
+          "coverage": 0.0374,
+          "role": "unassigned"
+        },
+        {
+          "hex": "#5b6061",
+          "coverage": 0.0362,
+          "role": "unassigned"
+        },
+        {
+          "hex": "#858c8d",
+          "coverage": 0.0275,
+          "role": "unassigned"
+        },
+        {
+          "hex": "#b8bec0",
+          "coverage": 0.0239,
+          "role": "unassigned"
+        },
+        {
+          "hex": "#e4ae5b",
+          "coverage": 0.0009,
+          "role": "unassigned"
+        },
+        {
+          "hex": "#065bff",
+          "coverage": 0.0001,
+          "role": "unassigned"
+        }
+      ],
+      "measurement": {
+        "k": 8,
+        "sampling": {
+          "method": "deterministic_stratified",
+          "max_pixels": 160000,
+          "sampled_pixels": 160000
+        }
+      }
+    },
+    "typography": {
+      "family": "Instrument Sans Variable",
+      "display_weight": 400,
+      "hero": "clamp(64px,7.7vw,114px)",
+      "section": "clamp(38px,4.7vw,68px)",
+      "body": "13–14px",
+      "micro": "9–10px, uppercase, 0.2em tracking",
+      "display_line_height": 1.04,
+      "display_tracking": "-0.055em"
+    },
+    "spacing": {
+      "unit": 8,
+      "section": "110–125px",
+      "density": "Low; large negative space"
+    },
+    "layout": {
+      "container": "min(1240px,86%)",
+      "hero": "Asymmetric copy left, unboxed subject right",
+      "dark": "Subject left, editorial heading right",
+      "grid": "Two columns; four-step system flow",
+      "mobile": "Stacked compositions, two-column flow"
+    },
+    "shape": {
+      "radius": 0,
+      "border": "1px neutral",
+      "section_transition": "Horizontal → diagonal down → horizontal; 86px desktop,45px mobile",
+      "buttons": "Compact rectangular solid ink"
+    },
+    "elevation": "No shadows or glass",
+    "motion": "200ms hover, reduced-motion supported"
+  },
+  "design_style": {
+    "mood": [
+      "premium",
+      "editorial",
+      "futuristic",
+      "restrained"
+    ],
+    "imagery": "Robot reference assets are omitted pending verified redistribution rights; layout and styling are retained.",
+    "composition": "Large thin uppercase type, asymmetry, technical microcopy",
+    "narrative": "Product experience → interactive request flow → engineering",
+    "contrast": "Light hero, charcoal middle, geometrically cut light conclusion"
+  },
+  "visual_effects": {
+    "overview": {
+      "effect_intensity": "low",
+      "performance_tier": "lightweight"
+    },
+    "geometry": {
+      "enabled": true,
+      "implementation": "CSS polygon clipping"
+    },
+    "canvas": {
+      "enabled": false
+    },
+    "webgl": {
+      "enabled": false
+    },
+    "particles": {
+      "enabled": false
+    },
+    "parallax": {
+      "enabled": false
+    },
+    "glassmorphism": {
+      "enabled": false
+    },
+    "composite_notes": "Supplied reference images informed the design. No robot image assets are distributed in this snapshot."
+  }
+}
